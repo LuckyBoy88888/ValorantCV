@@ -1,4 +1,5 @@
 # environment vars
+x64
 .vs
 *.obj
 *.log
