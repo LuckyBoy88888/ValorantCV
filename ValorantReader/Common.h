@@ -1,6 +1,10 @@
 #pragma once
 
+#include <map>
 #include <string>
+#include <stdint.h>
+
+#include <Windows.h>
 
 #ifndef MAX
 #define MAX(a, b)		(((a) > (b)) ? (a) : (b))
@@ -10,8 +14,9 @@
 #define MIN(a,b)		(((a) < (b)) ? (a) : (b))
 #endif // !MIN
 
-#define SETTING_INI		_T(".\\set.ini")
-#define POS_INI			(".\\pos.ini")
+#define SETTING_INI		("./resources/set.ini")
+#define POS_INI			("./resources/pos.ini")
+#define RESOURCE_PATH	"./resources/"
 
 #define INVALID			-1
 #define MATCH_ERROR		-2
@@ -42,3 +47,23 @@ enum EventType
 
 	kEventCount
 };
+
+const std::map<int8_t, std::string> kAgentNameMap = {
+	{0,		"Brimstone"},
+	{2,		"Pheonix"},
+	{3,		"Sage"},
+	{4,		"Sova"},
+	{12,	"Viper"},
+	{6,		"Cypher"},
+	{10,	"Reyna"},
+	{7,		"Killjoy"},
+	{5,		"Breach"},
+	{8,		"Omen"},
+	{1,		"Jett"},
+	{9,		"Raze"},
+	{11,	"Skye"},
+	{13,	"Yoru"},
+	{14,	"Astra"},
+};
+
+const std::string kUnknownAgent = "Unknown";

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "Logs.h"
 #include "Common.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,7 @@ typedef rectangle<unsigned short> recti16;
 typedef struct EnemyRect
 {
     EnemyRect() : m_mapX(0), m_mapY(0) {}
+    void            Export();
 
 	int16_t         m_mapX;
 	int16_t         m_mapY;
@@ -68,6 +70,10 @@ typedef struct ColorPattern {
 struct IEvent
 {
     IEvent(uint8_t eventType = kEventNone) : m_eventType(eventType) {}
+    virtual void	    Export() = 0;
+    static std::string  GetEventName(uint8_t eventType);
+    static std::string  GetAgentNameFromNo(int number);
+    
 
 	uint8_t         m_eventType;
  	// uint64_t     m_timestamp;
@@ -76,6 +82,7 @@ struct IEvent
 struct CAbilityCastEvent : public IEvent
 {
     CAbilityCastEvent() : m_ability(-1), IEvent(kEventAbilityCast) {}
+    virtual void	Export();
 
 	int8_t          m_ability;	// 0 - Q, 1 - C, 2 - E, 3 - X
 };
@@ -83,6 +90,7 @@ struct CAbilityCastEvent : public IEvent
 struct CAmmoReloadEvent : public IEvent
 {
     CAmmoReloadEvent() : m_oldAmmo(-1), m_newAmmo(-1), IEvent(kEventAmmoReload) {}
+    virtual void	Export();
 
 	int16_t         m_oldAmmo;
 	int16_t         m_newAmmo;
@@ -91,12 +99,15 @@ struct CAmmoReloadEvent : public IEvent
 struct CDeathEvent : public IEvent
 {
     CDeathEvent() : IEvent(kEventAllyDeath) {}
+    virtual void	Export();
+
 	std::string     m_killerAgent;
 };
 
 struct CEnemyAppearedEvent : public IEvent
 {
     CEnemyAppearedEvent() : IEvent(kEventEnemyAppeared) {}
+    virtual void	Export();
 
 	std::string     m_enemyAgent;
 	EnemyRect       m_enemyRect;
@@ -105,6 +116,7 @@ struct CEnemyAppearedEvent : public IEvent
 struct CKillEvent : public IEvent
 {
     CKillEvent() : IEvent(kEventEnemyKill) {}
+    virtual void	Export();
 
     std::string     m_killerAgent;
     std::string     m_targetAgent;
@@ -123,6 +135,7 @@ struct CShootEvent : public IEvent
                     m_hasKilledEnemy(false),
                     IEvent(kEventShoot)
                     {}
+    virtual void	Export();
 
     int8_t          m_isFirstShot;
     int32_t         m_reactionTimeMs;
@@ -141,6 +154,7 @@ struct CShootEvent : public IEvent
 struct CYouKilledEvent : public IEvent
 {
     CYouKilledEvent() : IEvent(kEventYouKilled) {}
+    virtual void	Export();
 
 	std::string     m_killerAgent;
 };

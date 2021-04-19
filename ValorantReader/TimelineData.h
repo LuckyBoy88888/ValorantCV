@@ -13,6 +13,8 @@ public:
 	CTimelineData();
 	virtual ~CTimelineData();
 
+	void					Export();
+
 public:
 	int16_t					m_width;
 	int16_t					m_height;

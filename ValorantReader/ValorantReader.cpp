@@ -1,4 +1,4 @@
-#include "logs.h"
+#include "Logs.h"
 #include "ValorantReader.h"
 
 CValorantReader::CValorantReader()
@@ -114,6 +114,7 @@ bool CValorantReader::Pipeline()
 	int width = 0;
 	int height = 0;
 	uint8_t* buffer = nullptr;
+	int32_t timestamp = (int32_t)(GetTickCount64() - g_time);
 
 	// Capture Game Screen
 	if (!m_pGameCapturer->CaptureScreen(buffer, width, height))
@@ -124,6 +125,8 @@ bool CValorantReader::Pipeline()
 
 	// Recognize the Game Screen
 	CTimelineData currSlice;
+	currSlice.m_timestamp = timestamp;
+
 	int8_t lastWeapon = GetLastWeapon(m_aryTimelineData);
 	if (!m_pEngine->Run(buffer, width, height, lastWeapon, currSlice))
 	{
@@ -132,9 +135,14 @@ bool CValorantReader::Pipeline()
 	}
 
 	// Build Game Events
-	m_currSlice = currSlice;
-	m_aryTimelineData.push_back(m_currSlice);
+	if (!m_pEventBuilder->Build(currSlice, m_aryTimelineData, timestamp))
+	{
+		GLogA("Building Game Events Failed.\n");
+		return false;
+	}
 
+	// Add to timeline history.
+	m_aryTimelineData.push_back(currSlice);
 
 	GLogA("Captured Image: %d, fps: %0.1f\n", m_aryTimelineData.size(), m_aryTimelineData.size()*1000 / (float)(GetTickCount64() - g_time));
 
@@ -142,17 +150,30 @@ bool CValorantReader::Pipeline()
 	//SaveBitmap("Output.bmp", width, height, buffer);
 	SAFE_DELETEA(buffer);
 
+	ExportSlice(currSlice);
 	return false;
 }
 
 bool CValorantReader::ExportSlice(CTimelineData& out)
 {
-	return false;
+	out.Export();
+	return true;
 }
 
 bool CValorantReader::ExportAll(std::list<CTimelineData>& outArray)
 {
-	return false;
+	GLogA("[");
+	for (std::list<CTimelineData>::iterator iter = outArray.begin(); iter != outArray.end(); ++iter)
+	{
+		if (iter != outArray.begin())
+		{
+			GLogA(",");
+		}
+		iter->Export();
+	}
+	GLogA("]");
+
+	return true;
 }
 
 void SaveBitmap(const char* fileName, int width, int height, uint8_t* pImg)
@@ -187,4 +208,14 @@ void SaveBitmap(const char* fileName, int width, int height, uint8_t* pImg)
 		}
 		fclose(fp);
 	}
+}
+
+int main()
+{
+	CValorantReader reader;
+	reader.InitInstance();
+	reader.Start();
+	reader.Run(&reader);
+
+	return 0;
 }

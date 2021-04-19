@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "structs.h"
 #include "ParserEngine.h"
 
@@ -515,19 +514,18 @@ std::vector<std::string> CParserEngine::GetAllyAgents()
 {
 	std::vector<std::string> agentList;
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < MAX_ENEMIES; i++)
 	{
 		int n = MatchColorPattern(m_width / 2 + m_agentsXAlly + i * m_agentsXStep, m_agentsY, m_agentsPattern, N_AGENTS);
 
 		if (n == 19)
+		{
 			n = 8;
+		}
 
 		if (n != INVALID)
 		{
-			char szAliveAgent[MAX_PATH] = { 0 };
-
-			sprintf_s(szAliveAgent, "agent%d", n);
-			agentList.push_back(szAliveAgent);
+			agentList.push_back(IEvent::GetAgentNameFromNo(n));
 		}
 	}
 
@@ -548,10 +546,7 @@ std::vector<std::string> CParserEngine::GetEnemyAgents()
 
 		if (n != INVALID)
 		{
-			char szAliveAgent[MAX_PATH] = { 0 };
-
-			sprintf_s(szAliveAgent, "agent%d", n);
-			agentList.push_back(szAliveAgent);
+			agentList.push_back(IEvent::GetAgentNameFromNo(n));
 		}
 	}
 
@@ -571,8 +566,8 @@ bool CParserEngine::LoadDB(int width, int height)
 
 	m_height = height;
 
-	sprintf_s(fn, "ptn%d.dat", m_height);
-	if (fopen_s(&fp, fn, "rb"))
+	sprintf_s(fn, "%sptn%d.dat", RESOURCE_PATH, m_height);
+	if (fopen_s(&fp, fn, "rb") != 0)
 	{
 		m_height = 0;
 		return false;
@@ -676,7 +671,7 @@ bool CParserEngine::LoadDB(int width, int height)
 	m_skillStep		= GetPrivateProfileIntA(strApp, "skillStep", 0, POS_INI);
 	m_skillWidth	= GetPrivateProfileIntA(strApp, "skillWidth", 0, POS_INI);
 
-	return TRUE;
+	return true;
 }
 
 int CParserEngine::MatchWhitePattern(int x, int y, WhitePattern* pPattern, int patternSize)
@@ -686,10 +681,14 @@ int CParserEngine::MatchWhitePattern(int x, int y, WhitePattern* pPattern, int p
 	ret = MatchWhitePattern_(x, y, pPattern, patternSize);
 
 	if (ret == INVALID)
+	{
 		ret = MatchWhitePattern_(x - 1, y, pPattern, patternSize);
+	}
 
 	if (ret == INVALID)
+	{
 		ret = MatchWhitePattern_(x + 1, y, pPattern, patternSize);
+	}
 
 	return ret;
 }
@@ -756,9 +755,13 @@ int CParserEngine::MatchWhitePattern_(int x, int y, WhitePattern* pPattern, int 
 	for (i = 0; i < w*h; i++)
 	{
 		if (blackImg[i] > avgBlackColor)
+		{
 			blackImg[i] = 1;
+		}
 		else
+		{
 			blackImg[i] = 0;
+		}
 	}
 	
 	for (n = patternSize-1; n >= 0; n--)
@@ -766,10 +769,14 @@ int CParserEngine::MatchWhitePattern_(int x, int y, WhitePattern* pPattern, int 
 		for (i = 0; i < w * h; i++)
 		{
 			if (pPattern[n].mask[i] == 0)
+			{
 				continue;
+			}
 
 			if (blackImg[i] == 0)
+			{
 				break;
+			}
 		}
 
 		if (i == w * h)
@@ -791,10 +798,14 @@ int CParserEngine::MatchColorPattern(int x, int y, ColorPattern* pPattern, int p
 	ret = MatchColorPattern_(x, y, pPattern, patternSize, flip);
 
 	if (ret == INVALID)
+	{
 		ret = MatchColorPattern_(x - 1, y, pPattern, patternSize, flip);
+	}
 
 	if (ret == INVALID)
+	{
 		ret = MatchColorPattern_(x + 1, y, pPattern, patternSize, flip);
+	}
 
 	return ret;
 }
@@ -823,9 +834,13 @@ int CParserEngine::MatchColorPattern_(int x, int y, ColorPattern* pPattern, int 
 			for (i = 0; i < w; i++)
 			{
 				if (flip)
+				{
 					idx = (j + 1) * w - 1 - i;
+				}
 				else
+				{
 					idx = j * w + i;
+				}
 
 				t = 0xFFFFFFF;
 
@@ -834,16 +849,24 @@ int CParserEngine::MatchColorPattern_(int x, int y, ColorPattern* pPattern, int 
 					for (ii = -1; ii <= 1; ii++)
 					{
 						if (y + j + jj >= m_height)
+						{
 							return INVALID;
+						}
 
 						if (y + j + jj < 0)
+						{
 							return INVALID;
+						}
 
 						if (x + i + ii >= m_width)
+						{
 							return INVALID;
+						}
 
 						if (x + i + ii < 0)
+						{
 							return INVALID;
+						}
 
 						p = m_curBuffer + (m_width * (y + j + jj) + (x + i + ii)) * 3;
 						tt = ((pPattern[n].B[idx] > (*p)) ? pPattern[n].B[idx] - (*p) : (*p) - pPattern[n].B[idx]) *
@@ -856,7 +879,9 @@ int CParserEngine::MatchColorPattern_(int x, int y, ColorPattern* pPattern, int 
 							((pPattern[n].R[idx] > (*p)) ? pPattern[n].R[idx] - (*p) : (*p) - pPattern[n].R[idx]);
 
 						if (tt < t)
+						{
 							t = tt;
+						}
 					}
 				}
 
@@ -1048,7 +1073,6 @@ std::vector<EnemyRect> CParserEngine::GetEnemyOnMap()
 			}
 
 			int cc = 0;
-
 			for (jj = 0; jj < m_mapRedCirclePattern->height; jj++)
 			{
 				for (ii = 0; ii < m_mapRedCirclePattern->width; ii++)
@@ -1097,12 +1121,8 @@ std::vector<EnemyRect> CParserEngine::GetEnemyOnMap()
 
 				if (m != INVALID)
 				{
-					char szAliveAgent[MAX_PATH] = { 0 };
-
 					m /= 2;
-					
-					sprintf_s(szAliveAgent, "agent%d", m);
-					enemyMapRect.m_enemyAgent = szAliveAgent;
+					enemyMapRect.m_enemyAgent = IEvent::GetAgentNameFromNo(m);
 					aryMapEnemyRects.push_back(enemyMapRect);
 
 					if (aryMapEnemyRects.size() == 5)
@@ -1142,9 +1162,9 @@ std::vector<EnemyRect> CParserEngine::GetEnemyOnMap()
 
 	for (k = 0; k < aryMapEnemyRects.size(); k++)
 	{
+		int x;
 		int dx = aryMapEnemyRects[k].m_mapX;
 		int dy = aryMapEnemyRects[k].m_mapY;
-		int x;
 
 		siz = m_width / 2 / dy;
 
@@ -1154,7 +1174,6 @@ std::vector<EnemyRect> CParserEngine::GetEnemyOnMap()
 			p = m_curBuffer + (j * m_width) * 3;
 
 			int i1, i2;
-
 			i1 = MAX(0, x - siz * 3 / 2); i2 = MIN(x + siz * 3 / 2, m_width);
 
 			for (i = i1; i < i2; i++)

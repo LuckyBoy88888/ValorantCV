@@ -7,7 +7,8 @@
 
 struct CGameState
 {
-public:
+	void						Export();
+
 	int8_t						m_round;
 	int8_t						m_roundTime;
 	int8_t						m_yourTeamScore;

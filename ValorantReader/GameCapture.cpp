@@ -1,6 +1,6 @@
-#include "pch.h"
-#include "GameCapture.h"
+#include <tchar.h>
 #include "Common.h"
+#include "GameCapture.h"
 
 CGameCapture::CGameCapture()
 {
@@ -12,7 +12,8 @@ bool CGameCapture::CaptureScreen(uint8_t* &buffer, int &width, int &height)
 	
 	HDC hDC = GetDC(GetDesktopWindow());
 	HDC hMemDC = CreateCompatibleDC(hDC);
-	HWND hGameWnd = FindWindow(nullptr, _T("MainWindow"));
+	HWND hGameWnd = FindWindow(nullptr, _T("VALORANT  "));
+	//HWND hGameWnd = FindWindow(nullptr, _T("MainWindow"));
 	if (hGameWnd)
 	{
 		RECT rt;

@@ -34,9 +34,7 @@ public:
 	static int		Run(CValorantReader* pThreadOwner);	// A threaded function that loops pipeline inside
 
 public:
-	uint8_t*					m_pImgBuffer;
 	std::list<CTimelineData>	m_aryTimelineData;
-	CTimelineData				m_currSlice;
 
 private:
 	bool						m_isRunning;

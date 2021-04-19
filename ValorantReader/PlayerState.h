@@ -5,6 +5,8 @@
 class CPlayerState
 {
 public:
+	void		Export();
+
 	int8_t 		m_isAlive;
 	int8_t 		m_health;
 	int8_t 		m_armor;
